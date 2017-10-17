@@ -14,13 +14,36 @@ sGis.module('plugins.ZoomButtons', [
     const ZOOM_OUT_CLASS = 'sGis-zoomButtons-zoomOut';
 
     class ZoomButtons {
-        constructor(map, wrapper, properties) {
+        constructor(map, painter, properties) {
             this._map = map;
-            this._init(wrapper);
-            if (properties) utils.extend(this, properties, true);
+            this._painter = painter;
+
+            let wrapper;
+            // TODO: providing wrapper directly is depricated
+            if (painter instanceof HTMLElement) {
+                wrapper = painter;
+            } else {
+                wrapper = painter.innerWrapper;
+            }
+
+            if (wrapper) this._addToWrapper(wrapper);
+            if (properties) Object.assign(this, properties);
+
+            if (painter.on) {
+                painter.on('wrapperChange', this._changeWrapper.bind(this));
+            }
         }
 
-        _init(wrapper) {
+        _changeWrapper() {
+            if (this._container.parentNode) this._removeFromWrapper();
+            if (this._painter.innerWrapper) this._addToWrapper(this._painter.innerWrapper);
+        }
+
+        _removeFromWrapper() {
+            this._container.parentNode.removeChild(this._container);
+        }
+
+        _addToWrapper(wrapper) {
             let container = utils.createNode('div', this.wrapperClass, {}, [
                 utils.createNode('div', ZOOM_IN_CLASS, { onclick: this._zoomIn.bind(this) }),
                 utils.createNode('div', ZOOM_OUT_CLASS, { onclick: this._zoomOut.bind(this) })
