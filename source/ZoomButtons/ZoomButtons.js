@@ -26,6 +26,8 @@ sGis.module('plugins.ZoomButtons', [
                 wrapper = painter.innerWrapper;
             }
 
+            this._setDom();
+
             if (wrapper) this._addToWrapper(wrapper);
             if (properties) Object.assign(this, properties);
 
@@ -43,14 +45,17 @@ sGis.module('plugins.ZoomButtons', [
             this._container.parentNode.removeChild(this._container);
         }
 
-        _addToWrapper(wrapper) {
+        _setDom() {
             let container = utils.createNode('div', this.wrapperClass, {}, [
                 utils.createNode('div', ZOOM_IN_CLASS, { onclick: this._zoomIn.bind(this) }),
                 utils.createNode('div', ZOOM_OUT_CLASS, { onclick: this._zoomOut.bind(this) })
             ]);
 
-            wrapper.appendChild(container);
             this._container = container;
+        }
+
+        _addToWrapper(wrapper) {
+            wrapper.appendChild(this._container);
         }
 
         _zoomIn() { this._map.zoom(1); }
